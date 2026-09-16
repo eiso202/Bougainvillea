@@ -156,11 +156,13 @@
         curves.forEach((curve,ci)=>{for(let i=0;i<=200;i++){const p=cubic(curve,i/200),key=Math.floor(p.x/cell)+','+Math.floor(p.y/cell);if(!buckets.has(key))buckets.set(key,[]);buckets.get(key).push({...p,ci});}});
         const records=curves.map(()=>[]),clean=context.createImageData(W,H);clean.data.set(pixels);
         for(let y=Math.floor(469*sy);y<Math.ceil(1222*sy);y++)for(let x=Math.floor(349*sx);x<W;x++){
-          const k=y*W+x;if(!lineMask[k])continue;
-          let best=Infinity,ci=0;
-          const bx=Math.floor(x/cell),by=Math.floor(y/cell);
-          for(let dy=-3;dy<=3;dy++)for(let dx=-3;dx<=3;dx++)for(const p of buckets.get((bx+dx)+','+(by+dy))||[]){const d=(p.x-x)**2+(p.y-y)**2;if(d<best){best=d;ci=p.ci;}}
-          records[ci].push(k);
+          const k=y*W+x;if(!mask[k])continue;
+          if(lineMask[k]){
+            let best=Infinity,ci=0;
+            const bx=Math.floor(x/cell),by=Math.floor(y/cell);
+            for(let dy=-3;dy<=3;dy++)for(let dx=-3;dx<=3;dx++)for(const p of buckets.get((bx+dx)+','+(by+dy))||[]){const d=(p.x-x)**2+(p.y-y)**2;if(d<best){best=d;ci=p.ci;}}
+            records[ci].push(k);
+          }
           let samples=0,r=0,g=0,b=0;
           for(let radius=4;radius<=28&&samples<2;radius+=4)for(const [dx,dy] of [[radius,0],[-radius,0],[0,radius],[0,-radius]]){
             const px=x+dx,py=y+dy;if(px<0||px>=W||py<0||py>=H)continue;const j=py*W+px,s=j*4;
